@@ -3,29 +3,49 @@
 <head>
   <title>Google Form Exam</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 100%;
+      height: 100vh; /* Full viewport height */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      max-width: 800px; /* Adjust the max width if needed */
+    }
     .warning {
       color: red;
       font-weight: bold;
+      position: absolute;
+      top: 10px;
+      left: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Complete the Google Form Below</h1>
+  <div class="container">
+    <h1>Complete the Google Form Below</h1>
 
-  <!-- Name Input -->
-  <label for="student-name">Enter your name:</label>
-  <input type="text" id="student-name" />
+    <!-- Embedding Google Form -->
+    <iframe id="form-iframe" src="" width="100%" height="100%"></iframe>
 
-  <!-- Embedding Google Form -->
-  <iframe id="form-iframe" src="" width="100%" height="70%"></iframe>
-
-  <div id="warning-message" class="warning"></div>
+    <div id="warning-message" class="warning"></div>
+  </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Your Google Apps Script URL
 
     function reportCheating(cheatType) {
-      const studentName = document.getElementById('student-name').value;
+      const studentName = document.getElementById('student-name')?.value || 'Anonymous';
 
       const data = {
         studentName: studentName,
