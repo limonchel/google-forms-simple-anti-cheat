@@ -16,98 +16,56 @@
   <iframe id="form-iframe" src="" width="100%" height="800px"></iframe>
 
   <div id="warning-message" class="warning"></div>
-  <input type="text" id="student-name" placeholder="Enter your name" />
 
   <script>
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // Replace with your proxy URL
-    const scriptUrl = 'script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec';
-    const reportInterval = 30000; // 60 seconds
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Set your proxy URL here
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Replace with your Google Apps Script URL
 
-    let lastReportTime = 0;
+    const studentEmail = "mishaplakhotyn@gmail.com"; // Replace with actual student's email from Google OAuth
 
-    function canReport() {
-      return Date.now() - lastReportTime >= reportInterval;
-    }
+    let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
+    let attemptTimer = null;
 
     function reportCheating(cheatType) {
-      if (!canReport()) {
-        console.log('Reporting too frequently. Skipping this report.');
-        return;
-      }
-
-      const studentName = document.getElementById('student-name').value || 'Anonymous';
       const data = {
-        studentName: studentName,
+        studentEmail: studentEmail,
         cheatType: cheatType
       };
 
-      fetch(corsProxy + encodeURIComponent(scriptUrl), {
+      fetch(proxyUrl + scriptUrl, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'https://limonchel.github.io'
+          'Content-Type': 'application/json'
         }
       })
       .then(response => {
         if (!response.ok) {
-          // Store attempt locally if network response is not ok
-          storeAttempt(data);
           throw new Error('Network response was not ok.');
         }
-        return response.text();
+        return response.json();
       })
-      .then(text => {
-        try {
-          const jsonData = JSON.parse(text);
-          console.log('Cheating logged successfully:', jsonData);
-        } catch (e) {
-          console.error('Error: Expected JSON, but got HTML:', text);
-        }
+      .then(data => {
+        console.log('Cheating logged successfully:', data);
       })
       .catch((error) => {
         console.error('Error logging cheating:', error);
-        storeAttempt(data);
+        // Store attempts locally if the network request fails
+        attempts.push(data);
+        localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
       });
-
-      lastReportTime = Date.now();
-    }
-
-    function storeAttempt(data) {
-      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
-      attempts.push(data);
-      localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
     }
 
     function sendStoredAttempts() {
-      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
       if (attempts.length === 0) return;
 
       attempts.forEach(attempt => {
-        fetch(corsProxy + encodeURIComponent(scriptUrl), {
-          method: 'POST',
-          body: JSON.stringify(attempt),
-          headers: {
-            'Content-Type': 'application/json',
-            'Origin': 'https://limonchel.github.io'
-          }
-        })
-        .then(response => {
-          if (response.ok) {
-            // Remove successfully sent attempt
-            removeAttempt(attempt);
-          }
-        })
-        .catch(error => {
-          console.error('Error sending stored attempt:', error);
-        });
+        reportCheating(attempt.cheatType);
       });
-    }
 
-    function removeAttempt(attempt) {
-      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
-      attempts = attempts.filter(a => a !== attempt);
-      localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
+      // Clear attempts after sending
+      attempts = [];
+      localStorage.removeItem('cheatingAttempts');
     }
 
     document.addEventListener('visibilitychange', function() {
@@ -130,8 +88,15 @@
         alert('No Google Form link provided. Please return to the teacher page.');
       }
 
-      // Try to send stored cheating attempts when the page loads
-      sendStoredAttempts();
+      // Set up a timer to periodically send stored attempts
+      attemptTimer = setInterval(sendStoredAttempts, 60000); // Attempt every minute (60000 ms)
+    };
+
+    window.onbeforeunload = function() {
+      // Clear timer on page unload
+      if (attemptTimer) {
+        clearInterval(attemptTimer);
+      }
     };
   </script>
 </body>
