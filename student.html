@@ -19,10 +19,22 @@
   <input type="text" id="student-name" placeholder="Enter your name" />
 
   <script>
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // Replace with your proxy URL
     const scriptUrl = 'script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec';
+    const reportInterval = 30000; // 60 seconds
+
+    let lastReportTime = 0;
+
+    function canReport() {
+      return Date.now() - lastReportTime >= reportInterval;
+    }
 
     function reportCheating(cheatType) {
+      if (!canReport()) {
+        console.log('Reporting too frequently. Skipping this report.');
+        return;
+      }
+
       const studentName = document.getElementById('student-name').value || 'Anonymous';
       const data = {
         studentName: studentName,
@@ -57,6 +69,8 @@
         console.error('Error logging cheating:', error);
         storeAttempt(data);
       });
+
+      lastReportTime = Date.now();
     }
 
     function storeAttempt(data) {
