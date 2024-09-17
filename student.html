@@ -22,8 +22,8 @@
   <div id="warning-message" class="warning"></div>
 
   <script>
-    // CORS Proxy by Rob
-    const proxyUrl = 'https://cors-proxy.htmldriven.com/?url=';
+    // CORS Proxy URL
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     // Google Apps Script URL
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec';
 
@@ -34,7 +34,7 @@
         cheatType: cheatType
       };
 
-      fetch(proxyUrl + encodeURIComponent(scriptUrl), {
+      fetch(proxyUrl + scriptUrl, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
