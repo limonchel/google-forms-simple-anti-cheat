@@ -9,21 +9,30 @@
       font-family: Arial, sans-serif;
     }
     .container {
-      width: 100%;
-      height: 100vh; /* Full viewport height */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .input-container {
+      margin-bottom: 20px;
+    }
+    .input-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .input-container input {
+      padding: 8px;
+      width: 300px; /* Adjust width as needed */
+      box-sizing: border-box;
     }
     iframe {
       border: none;
       width: 100%;
-      height: 80vh; /* Adjust height based on viewport */
-      max-width: 800px; /* Adjust the max width if needed */
-    }
-    .input-container {
-      margin-bottom: 10px; /* Space between input and iframe */
+      max-width: 800px;
+      height: 80vh; /* Adjust height as needed */
     }
     .warning {
       color: red;
