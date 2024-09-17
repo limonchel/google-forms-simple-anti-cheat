@@ -19,71 +19,68 @@
 
   <script>
     const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Set your proxy URL here
-    const scriptUrl = "script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Replace with your Google Apps Script URL
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Replace with your Google Apps Script URL
 
     const studentEmail = "mishaplakhotyn@gmail.com"; // Replace with actual student's email from Google OAuth
 
     let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
     let attemptTimer = null;
 
-    function reportCheating(attempts) {
+    async function reportCheating(attempts) {
       const data = {
         studentEmail: studentEmail,
         attempts: attempts
       };
 
-      fetch(proxyUrl + scriptUrl, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'https://limonchel.github.io'
-        }
-      })
-      .then(response => {
+      try {
+        const response = await fetch(proxyUrl + encodeURIComponent(scriptUrl), {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'https://limonchel.github.io'
+          }
+        });
+
         if (!response.ok) {
-          throw new Error('Network response was not ok.');
+          const errorText = await response.text(); // Read the response body as text
+          throw new Error(`Network response was not ok. Status: ${response.status}, Response: ${errorText}`);
         }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Cheating logged successfully:', data);
+
+        const responseData = await response.json();
+        console.log('Cheating logged successfully:', responseData);
         // Clear attempts after successful send
         localStorage.removeItem('cheatingAttempts');
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error logging cheating:', error);
         // Store attempts locally if the network request fails
         localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
-      });
+      }
     }
 
     function sendStoredAttempts() {
-      const storedAttempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
-      if (storedAttempts.length === 0) return;
+      const attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
+      if (attempts.length > 0) {
+        reportCheating(attempts);
+      }
+    }
 
-      reportCheating(storedAttempts);
+    function startAttemptTimer() {
+      if (attemptTimer) clearInterval(attemptTimer);
+      attemptTimer = setInterval(sendStoredAttempts, 60000); // Try sending attempts every 60 seconds
     }
 
     document.addEventListener('visibilitychange', function() {
       if (document.hidden) {
         document.getElementById('warning-message').textContent = 'Warning: You left the tab! This may be reported.';
-        const attempt = {
-          cheatType: 'Tab switching',
-          timestamp: new Date().toISOString()
-        };
-        attempts.push(attempt);
+        attempts.push({ type: 'Tab switching', timestamp: new Date() });
         localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
       }
     });
 
     window.addEventListener('blur', function() {
       document.getElementById('warning-message').textContent = 'Warning: You minimized the window! This may be reported.';
-      const attempt = {
-        cheatType: 'Window minimization',
-        timestamp: new Date().toISOString()
-      };
-      attempts.push(attempt);
+      attempts.push({ type: 'Window minimization', timestamp: new Date() });
       localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
     });
 
@@ -95,15 +92,7 @@
         alert('No Google Form link provided. Please return to the teacher page.');
       }
 
-      // Set up a timer to periodically send stored attempts
-      attemptTimer = setInterval(sendStoredAttempts, 60000); // Attempt every minute (60000 ms)
-    };
-
-    window.onbeforeunload = function() {
-      // Clear timer on page unload
-      if (attemptTimer) {
-        clearInterval(attemptTimer);
-      }
+      startAttemptTimer(); // Start the timer to send stored attempts
     };
   </script>
 </body>
