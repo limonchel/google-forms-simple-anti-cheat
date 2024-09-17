@@ -3,36 +3,80 @@
 <head>
   <title>Google Form Exam</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .input-container {
+      margin-bottom: 20px;
+    }
+    .input-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .input-container input {
+      padding: 8px;
+      width: 300px; /* Adjust width as needed */
+      box-sizing: border-box;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      max-width: 800px;
+      height: 80vh; /* Adjust height as needed */
+    }
     .warning {
       color: red;
       font-weight: bold;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    @media (max-width: 600px) {
+      iframe {
+        height: 60vh; /* Smaller height for smaller screens */
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Complete the Google Form Below</h1>
+  <div class="container">
+    <h1>Complete the Google Form Below</h1>
 
-  <!-- Name Input -->
-  <label for="student-name">Enter your name:</label>
-  <input type="text" id="student-name" />
+    <!-- Name Input -->
+    <div class="input-container">
+      <label for="student-name">Enter your name:</label>
+      <input type="text" id="student-name" placeholder="Your name here" />
+    </div>
 
-  <!-- Embedding Google Form -->
-  <iframe id="form-iframe" src="" width="100%" height="90%"></iframe>
+    <!-- Embedding Google Form -->
+    <iframe id="form-iframe" src=""></iframe>
 
-  <div id="warning-message" class="warning"></div>
+    <div id="warning-message" class="warning"></div>
+  </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbwIu84jSWX2KuyGLsgq-HmMiNDnd0PhiKbH5CTuOEHCI9GQ8VLo05QoWyjO-TJhlaay/exec";
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Replace with your proxy URL
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwIu84jSWX2KuyGLsgq-HmMiNDnd0PhiKbH5CTuOEHCI9GQ8VLo05QoWyjO-TJhlaay/exec'; // Your Google Apps Script URL
 
     function reportCheating(cheatType) {
-      const studentName = document.getElementById('student-name').value;
+      const studentName = document.getElementById('student-name').value || 'Anonymous';
 
       const data = {
         studentName: studentName,
         cheatType: cheatType
       };
 
-      fetch(scriptUrl, {
+      fetch(proxyUrl + scriptUrl, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
