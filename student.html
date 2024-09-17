@@ -65,7 +65,7 @@
   </div>
 
   <script>
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Replace with your proxy URL
+    const proxyUrl = 'https://api.allorigins.win/raw?url='; // All Origins proxy URL
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbwIu84jSWX2KuyGLsgq-HmMiNDnd0PhiKbH5CTuOEHCI9GQ8VLo05QoWyjO-TJhlaay/exec'; // Your Google Apps Script URL
 
     function reportCheating(cheatType) {
@@ -76,7 +76,7 @@
         cheatType: cheatType
       };
 
-      fetch(proxyUrl + scriptUrl, {
+      fetch(proxyUrl + encodeURIComponent(scriptUrl), {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
