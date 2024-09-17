@@ -69,11 +69,6 @@
       }
     });
 
-    window.addEventListener('blur', function() {
-      document.getElementById('warning-message').textContent = 'Warning: You minimized the window! This may be reported.';
-      reportCheating('Window minimization');
-    });
-
     window.onload = function() {
       const savedLink = localStorage.getItem("googleFormLink");
       if (savedLink) {
