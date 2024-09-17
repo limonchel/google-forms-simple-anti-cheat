@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher's Google Form Dashboard</title>
+</head>
+<body>
+  <h1>Enter Google Form Link</h1>
+  <form id="form-input">
+    <label for="form-link">Google Form URL:</label>
+    <input type="text" id="form-link" name="form-link" required>
+    <button type="button" onclick="saveFormLink()">Save</button>
+  </form>
+
+  <div id="student-link"></div>
+
+  <script>
+    function saveFormLink() {
+      const formLink = document.getElementById("form-link").value;
+      const studentLinkDiv = document.getElementById("student-link");
+      studentLinkDiv.innerHTML = `<a href="${formLink}" target="_blank">Click here to fill the Google Form</a>`;
+      localStorage.setItem("googleFormLink", formLink);
+    }
+
+    window.onload = function() {
+      const savedLink = localStorage.getItem("googleFormLink");
+      if (savedLink) {
+        document.getElementById("student-link").innerHTML = `<a href="${savedLink}" target="_blank">Click here to fill the Google Form</a>`;
+      }
+    };
+  </script>
+</body>
+</html>
