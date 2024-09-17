@@ -19,7 +19,11 @@
     iframe {
       border: none;
       width: 100%;
+      height: 80vh; /* Adjust height based on viewport */
       max-width: 800px; /* Adjust the max width if needed */
+    }
+    .input-container {
+      margin-bottom: 10px; /* Space between input and iframe */
     }
     .warning {
       color: red;
@@ -28,14 +32,25 @@
       top: 10px;
       left: 10px;
     }
+    @media (max-width: 600px) {
+      iframe {
+        height: 60vh; /* Smaller height for smaller screens */
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Complete the Google Form Below</h1>
 
+    <!-- Name Input -->
+    <div class="input-container">
+      <label for="student-name">Enter your name:</label>
+      <input type="text" id="student-name" placeholder="Your name here" />
+    </div>
+
     <!-- Embedding Google Form -->
-    <iframe id="form-iframe" src="" width="100%" onload="resizeIframe()"></iframe>
+    <iframe id="form-iframe" src=""></iframe>
 
     <div id="warning-message" class="warning"></div>
   </div>
@@ -44,7 +59,7 @@
     const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Your Google Apps Script URL
 
     function reportCheating(cheatType) {
-      const studentName = document.getElementById('student-name')?.value || 'Anonymous';
+      const studentName = document.getElementById('student-name').value || 'Anonymous';
 
       const data = {
         studentName: studentName,
@@ -87,11 +102,6 @@
         alert('No Google Form link provided. Please return to the teacher page.');
       }
     };
-
-    function resizeIframe() {
-      const iframe = document.getElementById('form-iframe');
-      iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
-    }
   </script>
 </body>
 </html>
