@@ -12,20 +12,14 @@
 <body>
   <h1>Complete the Google Form Below</h1>
 
-  <!-- Input for student name -->
-  <label for="student-name">Your Name:</label>
-  <input type="text" id="student-name" placeholder="Enter your name" required>
-
   <!-- Embedding Google Form -->
   <iframe id="form-iframe" src="" width="100%" height="800px"></iframe>
 
   <div id="warning-message" class="warning"></div>
+  <input type="text" id="student-name" placeholder="Enter your name" />
 
   <script>
-    // CORS proxy URL
-    const corsProxy = 'https://corsproxy.io/?'; // You can replace this with your proxy URL
-
-    // Google Apps Script URL
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec';
 
     function reportCheating(cheatType) {
@@ -40,19 +34,20 @@
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
-          'Origin': 'https://limonchel.github.io'  // Add the Origin header to avoid preflight requests
+          'Origin': 'https://limonchel.github.io'
         }
       })
       .then(response => {
-        if (response.ok) {
-          return response.text(); // Read response as text
-        } else {
+        if (!response.ok) {
+          // Store attempt locally if network response is not ok
+          storeAttempt(data);
           throw new Error('Network response was not ok.');
         }
+        return response.text();
       })
       .then(text => {
         try {
-          const jsonData = JSON.parse(text); // Try to parse JSON
+          const jsonData = JSON.parse(text);
           console.log('Cheating logged successfully:', jsonData);
         } catch (e) {
           console.error('Error: Expected JSON, but got HTML:', text);
@@ -60,7 +55,45 @@
       })
       .catch((error) => {
         console.error('Error logging cheating:', error);
+        storeAttempt(data);
       });
+    }
+
+    function storeAttempt(data) {
+      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
+      attempts.push(data);
+      localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
+    }
+
+    function sendStoredAttempts() {
+      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
+      if (attempts.length === 0) return;
+
+      attempts.forEach(attempt => {
+        fetch(corsProxy + encodeURIComponent(scriptUrl), {
+          method: 'POST',
+          body: JSON.stringify(attempt),
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'https://limonchel.github.io'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Remove successfully sent attempt
+            removeAttempt(attempt);
+          }
+        })
+        .catch(error => {
+          console.error('Error sending stored attempt:', error);
+        });
+      });
+    }
+
+    function removeAttempt(attempt) {
+      let attempts = JSON.parse(localStorage.getItem('cheatingAttempts')) || [];
+      attempts = attempts.filter(a => a !== attempt);
+      localStorage.setItem('cheatingAttempts', JSON.stringify(attempts));
     }
 
     document.addEventListener('visibilitychange', function() {
@@ -70,6 +103,10 @@
       }
     });
 
+    window.addEventListener('blur', function() {
+      document.getElementById('warning-message').textContent = 'Warning: You minimized the window! This may be reported.';
+      reportCheating('Window minimization');
+    });
 
     window.onload = function() {
       const savedLink = localStorage.getItem("googleFormLink");
@@ -78,6 +115,9 @@
       } else {
         alert('No Google Form link provided. Please return to the teacher page.');
       }
+
+      // Try to send stored cheating attempts when the page loads
+      sendStoredAttempts();
     };
   </script>
 </body>
