@@ -3,72 +3,29 @@
 <head>
   <title>Google Form Exam</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 20px;
-    }
-    .input-container {
-      margin-bottom: 20px;
-    }
-    .input-container label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    .input-container input {
-      padding: 8px;
-      width: 300px; /* Adjust width as needed */
-      box-sizing: border-box;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      max-width: 800px;
-      height: 80vh; /* Adjust height as needed */
-    }
     .warning {
       color: red;
       font-weight: bold;
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-    @media (max-width: 600px) {
-      iframe {
-        height: 60vh; /* Smaller height for smaller screens */
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Complete the Google Form Below</h1>
+  <h1>Complete the Google Form Below</h1>
 
-    <!-- Name Input -->
-    <div class="input-container">
-      <label for="student-name">Enter your name:</label>
-      <input type="text" id="student-name" placeholder="Your name here" />
-    </div>
+  <!-- Name Input -->
+  <label for="student-name">Enter your name:</label>
+  <input type="text" id="student-name" />
 
-    <!-- Embedding Google Form -->
-    <iframe id="form-iframe" src=""></iframe>
+  <!-- Embedding Google Form -->
+  <iframe id="form-iframe" src="" width="100%" height="90%"></iframe>
 
-    <div id="warning-message" class="warning"></div>
-  </div>
+  <div id="warning-message" class="warning"></div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec"; // Your Google Apps Script URL
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyuVy5KnbT7HiWDsGSj_w8bQpXddpYNWMlI6nAn48kZsH-7zySHyuY86rIMQSgwTPA9/exec";
 
     function reportCheating(cheatType) {
-      const studentName = document.getElementById('student-name').value || 'Anonymous';
+      const studentName = document.getElementById('student-name').value;
 
       const data = {
         studentName: studentName,
