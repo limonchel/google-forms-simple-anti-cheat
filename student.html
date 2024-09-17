@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Form Exam</title>
+  <style>
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Complete the Google Form Below</h1>
+
+  <!-- Embedding Google Form -->
+  <iframe id="form-iframe" src="" width="100%" height="600px"></iframe>
+
+  <div id="warning-message" class="warning"></div>
+
+  <script>
+    const studentEmail = "student@example.com";  // Replace this with student's actual email from Google OAuth
+
+    function reportCheating(cheatType) {
+      const url = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";  // Replace YOUR_SCRIPT_ID with actual ID
+
+      const data = {
+        studentEmail: studentEmail,
+        cheatType: cheatType
+      };
+
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Cheating logged successfully:', data);
+      })
+      .catch((error) => {
+        console.error('Error logging cheating:', error);
+      });
+    }
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        document.getElementById('warning-message').textContent = 'Warning: You left the tab! This may be reported.';
+        reportCheating('Tab switching');
+      }
+    });
+
+    window.addEventListener('blur', function() {
+      document.getElementById('warning-message').textContent = 'Warning: You minimized the window! This may be reported.';
+      reportCheating('Window minimization');
+    });
+
+    window.onload = function() {
+      const savedLink = localStorage.getItem("googleFormLink");
+      if (savedLink) {
+        document.getElementById("form-iframe").src = savedLink;
+      } else {
+        alert('No Google Form link provided. Please return to the teacher page.');
+      }
+    };
+  </script>
+</body>
+</html>
